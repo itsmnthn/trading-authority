@@ -1,0 +1,12 @@
+{
+  "name": "authority",
+  "version": "1.0.0",
+  "description": "Trading Authority",
+  "main": "index.js",
+  "scripts": {
+    "dev": "npx serve ."
+  },
+  "keywords": [],
+  "author": "Manthankumar Satani",
+  "license": "ISC"
+}

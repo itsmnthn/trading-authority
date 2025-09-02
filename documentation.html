@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Authority — Documentation</title>
+    <meta name="description" content="Documentation for Trading Authority: create and use a session key derived from an EIP‑712 signature. Learn the concept, dashboard guide, and FAQ.">
+    <meta name="keywords" content="Trading Authority documentation, EIP-712, session key, Web3, Ethereum, viem">
+    <meta name="theme-color" content="#111827">
+    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <script src="https://cdn.tailwindcss.com?plugins=typography,forms"></script>
+    <script>
+      tailwind.config = {
+          theme: {
+              extend: {
+                  colors: {
+                      cyan: { 400: '#22d3ee', 500: '#06b6d4', 600: '#0891b2' }
+                  }
+              }
+          }
+      }
+    </script>
+    <style>
+      html {
+      scroll-behavior: smooth;
+      }
+      * {
+      -webkit-tap-highlight-color: transparent;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 text-gray-300 font-sans antialiased">
+    <div class="container max-w-4xl mx-auto p-4 md:p-8">
+      <header class="mb-10 md:mb-12">
+        <div
+          class="rounded-2xl bg-gradient-to-br from-gray-800/70 to-gray-800/30 border border-gray-700/60 p-6 md:p-8 shadow-xl">
+          <div class="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-cyan-400">Trading Authority
+              </h1>
+              <p class="text-gray-400 mt-2">A session-key pattern for one-click actions with strong safety
+                rails.
+              </p>
+            </div>
+            <a href="./index.html"
+              class="inline-flex items-center gap-2 text-cyan-300 hover:text-cyan-200 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 px-3 py-2 rounded-lg text-sm transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back to Dashboard
+            </a>
+          </div>
+          <nav class="mt-6 text-sm text-gray-400 overflow-x-auto">
+            <ul class="flex items-center gap-4 md:gap-6 whitespace-nowrap">
+              <li><a href="#concept" class="hover:text-cyan-300 transition-colors">The Concept</a></li>
+              <li><a href="#guide" class="hover:text-cyan-300 transition-colors">Dashboard Guide</a></li>
+              <li><a href="#faq" class="hover:text-cyan-300 transition-colors">FAQ</a></li>
+              <li><a href="./trading-authority.html" class="hover:text-cyan-300 transition-colors">trading-authority.js</a></li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+      <div class="space-y-16">
+        <section aria-labelledby="takeaways">
+          <h2 id="takeaways" class="sr-only">Key takeaways</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="rounded-xl bg-gray-800/60 border border-gray-700 p-4">
+              <div class="flex items-center gap-3 mb-2 text-cyan-300">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                  stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.572L16.5 21.75l-.398-1.178a3.375 3.375 0 00-2.456-2.456L12.5 18l1.178-.398a3.375 3.375 0 002.456-2.456L16.5 14.25l.398 1.178a3.375 3.375 0 002.456 2.456L20.5 18l-1.178.398a3.375 3.375 0 00-2.456 2.456z" />
+                </svg>
+                <span class="font-semibold">Web2-like UX</span>
+              </div>
+              <p class="text-sm text-gray-400">No pop-ups for routine actions. The Trading Authority signs on
+                your behalf within its defined limits.
+              </p>
+            </div>
+            <div class="rounded-xl bg-gray-800/60 border border-gray-700 p-4">
+              <div class="flex items-center gap-3 mb-2 text-green-300">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                  stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.286zm0 13.036h.008v.008h-.008v-.008z" />
+                </svg>
+                <span class="font-semibold">Safety First</span>
+              </div>
+              <p class="text-sm text-gray-400">Your main wallet's private key is never exposed. The authority
+                key is encrypted in the browser.
+              </p>
+            </div>
+            <div class="rounded-xl bg-gray-800/60 border border-gray-700 p-4">
+              <div class="flex items-center gap-3 mb-2 text-purple-300">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" class="w-5 h-5"
+                  viewBox="0 0 24 24">
+                  <!-- Icon from Lucide by Lucide Contributors - https://github.com/lucide-icons/lucide/blob/main/LICENSE -->
+                  <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2">
+                    <path
+                      d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4M14 13.12c0 2.38 0 6.38-1 8.88m4.29-.98c.12-.6.43-2.3.5-3.02M2 12a10 10 0 0 1 18-6M2 16h.01m19.79 0c.2-2 .131-5.354 0-6" />
+                    <path
+                      d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2m2.31 12c.21-.66.45-1.32.57-2M9 6.8a6 6 0 0 1 9 5.2v2" />
+                  </g>
+                </svg>
+                <span class="font-semibold">Deterministic</span>
+              </div>
+              <p class="text-sm text-gray-400">Same signature inputs produce the same key. Regenerate by
+                re-signing; no private key backup needed.
+              </p>
+            </div>
+            <div class="rounded-xl bg-gray-800/60 border border-gray-700 p-4">
+              <div class="flex items-center gap-3 mb-2 text-amber-300">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                  stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+                </svg>
+                <span class="font-semibold">Scoped Permissions</span>
+              </div>
+              <p class="text-sm text-gray-400">In a production environment, a smart contract can restrict what
+                the authority is allowed to do.
+              </p>
+            </div>
+          </div>
+        </section>
+        <section id="oct">
+          <h2 class="text-3xl font-semibold border-b-2 border-cyan-500/30 pb-3 mb-6">Case study: Hubble Exchange’s One‑Click Trading (OCT)</h2>
+          <div class="space-y-4">
+            <p class="text-gray-300">This Trading Authority flow was used by Hubble Exchange to solve two major UX pain points for on‑chain trading:</p>
+            <ul class="list-disc pl-6 text-gray-300 space-y-2">
+              <li><strong>No repeated wallet prompts</strong>: place and cancel orders with a single click by delegating actions to a browser‑stored session key.</li>
+              <li><strong>No constant chain switching</strong>: after the first typed‑data signature, users can trade from their connected network (e.g., Arbitrum, Ethereum, Avalanche C‑Chain) without switching back to Hubblenet.</li>
+            </ul>
+            <p class="text-gray-400 text-sm">More details: <a href="https://twitter.com/HubbleExchange/status/1694139074804863053" target="_blank" rel="noopener noreferrer" class="text-cyan-300 hover:text-cyan-200 underline">Hubble Exchange’s One‑Click Trading (OCT)</a>.</p>
+          </div>
+        </section>
+        <section id="concept">
+          <h2 class="text-3xl font-semibold border-b-2 border-cyan-500/30 pb-3 mb-6">The Concept</h2>
+          <div class="prose prose-invert max-w-none text-gray-300 space-y-8">
+            <div>
+              <h3 class="text-2xl font-semibold text-gray-100">What is a Trading Authority?</h3>
+              <p>A Trading Authority is a dedicated, sandboxed cryptographic key that is securely and
+                deterministically derived from your main wallet's signature. It acts as a secondary account,
+                authorized by you, to perform specific actions on your behalf without requiring a wallet
+                pop-up for every transaction. This architecture enables a fast and fluid "Web2-like" user
+                experience for decentralized applications while maintaining high security standards.
+              </p>
+            </div>
+            <div>
+              <h3 class="text-2xl font-semibold text-gray-100">Why is it Useful?</h3>
+              <div class="not-prose space-y-4">
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0 text-cyan-400 mt-1">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                      fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                      class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M11.25 4.5l7.5 7.5-7.5 7.5m-6-15l7.5 7.5-7.5 7.5" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-gray-100">Faster Flows</h4>
+                    <p class="text-gray-400">Eliminates repetitive confirmations for frequent actions
+                      like placing trades, signing messages, or other in-app interactions.
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0 text-cyan-400 mt-1">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                      fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                      class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-gray-100">Enhanced Security</h4>
+                    <p class="text-gray-400">Your main wallet's private key is never exposed. The
+                      authority key is encrypted locally with a password you create.
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0 text-cyan-400 mt-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                      class="w-6 h-6">
+                      <!-- Icon from Remix Icon by Remix Design - https://github.com/Remix-Design/RemixIcon/blob/master/License -->
+                      <path fill="currentColor"
+                        d="M21 8v4h-2V9h-5V4H5v16h6v2H3.993A.993.993 0 0 1 3 21.008V2.992C3 2.455 3.449 2 4.002 2h10.995zm-7.214 7.327c.039-.727.6-1.319 1.324-1.396l.87-.092a.5.5 0 0 0 .279-.124l.651-.585a1.48 1.48 0 0 1 1.923-.05l.682.55c.08.065.18.103.284.109l.874.047c.727.039 1.319.6 1.396 1.324l.092.87a.5.5 0 0 0 .124.279l.585.651c.487.542.508 1.357.05 1.923l-.55.682a.5.5 0 0 0-.109.284l-.047.874a1.48 1.48 0 0 1-1.324 1.396l-.87.092a.5.5 0 0 0-.279.124l-.651.585a1.48 1.48 0 0 1-1.923.05l-.682-.55a.5.5 0 0 0-.284-.109l-.874-.047a1.48 1.48 0 0 1-1.396-1.324l-.092-.87a.5.5 0 0 0-.124-.279l-.585-.651a1.48 1.48 0 0 1-.05-1.923l.55-.682a.5.5 0 0 0 .109-.284zm7.244 1.703l-1.06-1.06l-2.47 2.47l-1.47-1.47l-1.06 1.06l2.53 2.53z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-gray-100">Permission Control</h4>
+                    <p class="text-gray-400">In a production environment, a smart contract grants scoped
+                      permissions (e.g., can only trade specific tokens, has a daily spending limit).
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3 class="text-2xl font-semibold text-gray-100">The Workflow: How It's Created and Used</h3>
+              <p>The entire process is designed to be secure, reproducible, and user-friendly. It happens in
+                three distinct phases:
+              </p>
+              <ol class="list-decimal pl-6 space-y-6">
+                <li>
+                  <strong>Authorization via Signature (EIP-712)</strong>
+                  <p class="mt-2">Instead of asking for your private key, the application asks you to sign
+                    a precisely structured message. This message contains several critical pieces of
+                    data that make the signature unique and secure:
+                  </p>
+                  <ul class="list-disc pl-8 mt-2 space-y-2 text-gray-400">
+                    <li><strong>Domain Separator:</strong> Includes the application's name
+                      (`authority`), version (`v1`), and the `chainId` of the network (e.g., Sepolia).
+                      This ensures a signature for this app cannot be misused on another app or a
+                      different chain.
+                    </li>
+                    <li><strong>Message Content:</strong> Clearly states the purpose of the signature
+                      ("Authority creation/recreation") and includes the `nonce`.
+                    </li>
+                    <li><strong>Nonce:</strong> A unique counter for your address on the current chain.
+                      If you create a second Trading Authority, the nonce will be incremented,
+                      resulting in a completely different signature and thus a new, unique key.
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <strong>Deterministic Key Derivation (BIP-39/BIP-32)</strong>
+                  <p class="mt-2">The resulting 65-byte signature is a perfect, unique source of entropy.
+                    This entropy is fed into standard cryptographic algorithms:
+                  </p>
+                  <ul class="list-disc pl-8 mt-2 space-y-2 text-gray-400">
+                    <li>First, it's hashed to create a seed.</li>
+                    <li>This seed is then used to generate a hierarchical deterministic (HD) wallet.
+                    </li>
+                    <li>We derive the first account (`m/44'/60'/0'/0/0`) from this wallet to get a
+                      stable private key and address. Because this process is deterministic, the same
+                      initial signature will **always** result in the exact same Trading Authority
+                      key.
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <strong>Secure Local Storage</strong>
+                  <p class="mt-2">The derived private key is never stored in plain text. You are prompted
+                    to create a password, which is used to encrypt the private key before it's saved to
+                    your browser's `localStorage`. This encrypted data is also stored with its creation
+                    nonce and version, ensuring future compatibility.
+                  </p>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </section>
+        <section id="guide">
+          <h2 class="text-3xl font-semibold border-b-2 border-cyan-500/30 pb-3 mb-6">Dashboard Guide</h2>
+          <div class="space-y-6">
+            <div class="rounded-xl bg-gray-800/60 border border-gray-700/60 p-4 md:p-6">
+              <h3 class="text-2xl font-semibold text-gray-100 mb-2">1. Connect Wallet & Select Network</h3>
+              <p class="prose prose-invert max-w-none text-gray-400">This is the entry point. Connect your
+                main wallet (like MetaMask). The network selector allows you to use the dashboard on
+                different EVM chains, as a Trading Authority is unique to a specific wallet address and
+                network combination.
+              </p>
+            </div>
+            <div class="rounded-xl bg-gray-800/60 border border-gray-700/60 p-4 md:p-6">
+              <h3 class="text-2xl font-semibold text-gray-100 mb-2">2. Create or Load a Trading Authority</h3>
+              <p class="prose prose-invert max-w-none text-gray-400">If it's your first time on this network,
+                you'll be prompted to sign a message and create a password. This generates and encrypts your
+                Trading Authority. On subsequent visits, you'll simply enter your password to unlock the
+                existing key.
+              </p>
+            </div>
+            <div class="rounded-xl bg-gray-800/60 border border-gray-700/60 p-4 md:p-6">
+              <h3 class="text-2xl font-semibold text-gray-100 mb-2">3. Whitelist the Authority (Simulated)
+              </h3>
+              <p class="prose prose-invert max-w-none text-gray-400">This step represents a crucial on-chain
+                action. In a real application, after creating a new Trading Authority, you would send a
+                transaction from your main wallet to a smart contract to "whitelist" it, granting it
+                specific permissions. This dashboard simulates that one-time step.
+              </p>
+            </div>
+            <div class="rounded-xl bg-gray-800/60 border border-gray-700/60 p-4 md:p-6">
+              <h3 class="text-2xl font-semibold text-gray-100 mb-2">4. Managing Your Trading Authority</h3>
+              <div class="prose prose-invert max-w-none text-gray-400">
+                <ul class="list-disc pl-5 space-y-4">
+                  <li><strong>Details:</strong> Shows the public address and on-chain balance of your
+                    Trading Authority. The info icon ⓘ explains the importance of smart contract
+                    permissions.
+                  </li>
+                  <li><strong>Funding:</strong> The Trading Authority is a separate account and needs its
+                    own gas. Use the "Fund" button to send it ETH from your main wallet.
+                  </li>
+                  <li>
+                    <strong>One-Click Actions:</strong> Actions here are executed immediately without a
+                    wallet pop-up:
+                    <ul class="list-circle pl-5 mt-2 space-y-2">
+                      <li><strong>Send Back:</strong> Send a custom amount of ETH from the Trading
+                        Authority back to your main wallet.
+                      </li>
+                      <li><strong>Sign Message:</strong> Use the Trading Authority to sign an
+                        arbitrary message. The resulting cryptographic signature is displayed below.
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section id="faq">
+          <h2 class="text-3xl font-semibold border-b-2 border-cyan-500/30 pb-3 mb-6">Frequently Asked Questions
+          </h2>
+          <div class="space-y-4">
+            <details class="rounded-lg bg-gray-800/60 border border-gray-700/60 p-4 cursor-pointer" open>
+              <summary class="font-semibold text-gray-100">What if I forget my password or clear my browser
+                storage?
+              </summary>
+              <p class="mt-3 text-gray-400 text-sm prose prose-invert max-w-none">You can simply re-create the
+                Trading Authority. Since the key is generated from your wallet's signature with a specific
+                nonce, signing the same message again will deterministically produce the exact same key. You
+                can then set a new password for it.
+              </p>
+            </details>
+            <details class="rounded-lg bg-gray-800/60 border border-gray-700/60 p-4 cursor-pointer">
+              <summary class="font-semibold text-gray-100">How do I manage, rotate, or revoke a Trading
+                Authority?
+              </summary>
+              <div class="mt-3 text-gray-400 text-sm prose prose-invert max-w-none space-y-3">
+                <p>Managing keys involves two main strategies: rotation for creating a new key, and on-chain
+                  revocation for definitively disabling an old one.
+                </p>
+                <div>
+                  <strong class="text-gray-200">1. Key Rotation (Client-Side):</strong>
+                  <p class="mt-1">To generate a new key, you must first clear the existing one from
+                    `localStorage` for that chain (a "Log Out & Reset" button in an app would handle
+                    this). The app will then use the next available nonce (e.g., nonce `1` instead of
+                    `0`), resulting in a different signature and a completely new, unique Trading
+                    Authority key. This makes the old key obsolete within the app.
+                  </p>
+                </div>
+                <div>
+                  <strong class="text-gray-200">2. Key Revocation (On-Chain):</strong>
+                  <p class="mt-1">For production-grade security, you must revoke the old key on a smart
+                    contract. This involves your main wallet sending a transaction to a "gatekeeper"
+                    contract to remove the old Trading Authority's address from its list of authorized
+                    keys. This is the definitive kill-switch that makes the old key useless for
+                    interacting with the protocol, regardless of where it's stored.
+                  </p>
+                </div>
+              </div>
+            </details>
+            <details class="rounded-lg bg-gray-800/60 border border-gray-700/60 p-4 cursor-pointer">
+              <summary class="font-semibold text-gray-100">Can I use the same Trading Authority on another
+                computer?
+              </summary>
+              <p class="mt-3 text-gray-400 text-sm prose prose-invert max-w-none">Yes. The key is not tied to
+                a specific device. As long as you have access to your main wallet, you can perform the same
+                signature action on a different device to regenerate the exact same Trading Authority key.
+                You will then be prompted to set a new password for encrypting it on that new device.
+              </p>
+            </details>
+            <details class="rounded-lg bg-gray-800/60 border border-gray-700/60 p-4 cursor-pointer">
+              <summary class="font-semibold text-gray-100">Is my main wallet at risk?</summary>
+              <p class="mt-3 text-gray-400 text-sm prose prose-invert max-w-none">No. Your main wallet's
+                private key is never exported or exposed to the application. The Trading Authority is a
+                separate key encrypted locally. In a production system, its power should be further limited
+                by a smart contract that enforces strict rules (e.g., spending limits, allowed actions),
+                making it a very secure pattern for dApp interaction.
+              </p>
+            </details>
+          </div>
+        </section>
+      </div>
+    </div>
+  </body>
+</html>

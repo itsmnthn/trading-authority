@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading-Authority.js — EIP‑712 Trading Authority helper (JavaScript)</title>
+    <meta name="description" content="Trading-Authority.js is a tiny, framework-agnostic helper that derives a secure Trading Authority key from an EIP‑712 signature. Includes one‑call and low‑level APIs for Web3 apps.">
+    <meta name="keywords" content="Trading Authority, EIP-712, session key, Web3, viem, Ethereum, JavaScript helper, derive key, BIP-39, BIP-32">
+    <meta name="robots" content="index,follow">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Trading-Authority.js — EIP‑712 Trading Authority helper">
+    <meta property="og:description" content="Derive a Trading Authority key from an EIP‑712 signature. One‑call and low‑level APIs for Web3 apps.">
+    <meta property="og:url" content="trading-authority.html">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Trading-Authority.js — EIP‑712 Trading Authority helper">
+    <meta name="twitter:description" content="Derive a Trading Authority key from an EIP‑712 signature with a tiny JS helper.">
+    <meta name="theme-color" content="#111827">
+    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <link rel="dns-prefetch" href="https://esm.sh">
+    <link rel="preconnect" href="https://esm.sh" crossorigin>
+    <link rel="dns-prefetch" href="https://unpkg.com">
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
+    <link rel="prefetch" href="./trading-authority.js" as="script">
+    <script src="https://cdn.tailwindcss.com?plugins=typography,forms"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              cyan: { 400: '#22d3ee', 500: '#06b6d4', 600: '#0891b2' }
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      html { scroll-behavior: smooth; }
+      * { -webkit-tap-highlight-color: transparent; }
+      pre.code-scroll { max-height: 60vh; overflow: auto; -webkit-overflow-scrolling: touch; border: 1px solid #374151; border-radius: 0.5rem; }
+      /* Improve mobile readability for highlighted blocks */
+      .shiki { max-height: 60vh; overflow: auto; -webkit-overflow-scrolling: touch; border: 1px solid #374151; border-radius: 0.75rem; padding: 16px; content-visibility: auto; contain-intrinsic-size: 400px 300px; }
+      .shiki code { font-size: 10px; line-height: 1.5; }
+      @media (min-width: 640px) { .shiki code { font-size: 12px; } }
+    </style>
+  </head>
+  <body class="bg-gray-900 text-gray-300 font-sans antialiased">
+    <div class="container max-w-4xl mx-auto p-4 md:p-8">
+      <header class="mb-10 md:mb-12">
+        <div class="rounded-2xl bg-gradient-to-br from-gray-800/70 to-gray-800/30 border border-gray-700/60 p-6 md:p-8 shadow-xl">
+          <div class="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-cyan-400">Trading-Authority.js</h1>
+              <p class="text-gray-400 mt-2">A tiny, framework-agnostic helper to create  Trading Authority <br> from an EIP‑712 signature.</p>
+            </div>
+            <a href="./index.html" class="inline-flex items-center gap-2 text-cyan-300 hover:text-cyan-200 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 px-3 py-2 rounded-lg text-sm transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+              Back to Dashboard
+            </a>
+          </div>
+          <nav class="mt-6 text-sm text-gray-400 overflow-x-auto" aria-label="Secondary">
+            <ul class="flex items-center gap-4 md:gap-6 whitespace-nowrap">
+              <li><a href="#usage" class="hover:text-cyan-300">Usage</a></li>
+              <li><a href="#api" class="hover:text-cyan-300">API</a></li>
+              <li><a href="#source" class="hover:text-cyan-300">Source</a></li>
+              <li><a href="./documentation.html" class="hover:text-cyan-300">Documentation</a></li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+
+      <main class="space-y-12">
+        <section id="usage" class="space-y-6">
+          <h2 class="text-3xl font-semibold border-b-2 border-cyan-500/30 pb-3">Usage</h2>
+          <div class="prose prose-invert max-w-none">
+            <h3>In a browser (ESM)</h3>
+            <p>Place the script and import it with a relative path.</p>
+          </div>
+          <pre id="quickUsage" data-lang="html" class="code-scroll bg-black/60 border border-gray-700 rounded-lg p-4 text-xs text-gray-100"><code>&lt;script type="module"&gt;
+import { 
+  getTypedDataForSignature, 
+  generateTradingAuthority
+} from './trading-authority.js';
+
+// 1) Prepare EIP-712 typed data
+const domain = { name: 'authority', version: 'v1' };
+const chainId = 11155111; // e.g. Sepolia
+const nonce = 0; // Increase per new authority
+const typed = getTypedDataForSignature({ domain, chainId, nonce });
+
+// 2) Ask the wallet to sign
+const signature = await walletClient.signTypedData({ account, ...typed });
+
+// 3) Derive the Trading Authority key
+const { mnemonic, privateKey } = await generateTradingAuthority(
+  walletClient,
+  { account, domain, chainId, nonce }
+);
+console.log(privateKey);
+&lt;/script&gt;</code></pre>
+        </section>
+
+        <section id="api" class="space-y-6">
+          <h2 class="text-3xl font-semibold border-b-2 border-cyan-500/30 pb-3">API</h2>
+          <div class="prose prose-invert max-w-none space-y-6">
+            <p><code>getTypedDataForSignature</code> — Builds the EIP‑712 payload for onboarding. Provide the app name and version, a chain id, and a nonce. The result is an immutable object that can be passed directly to a wallet’s typed‑data signing method.</p>
+            <p><code>generateTradingAuthority</code> — One‑call helper. Requests a signature from the connected wallet and deterministically derives the Trading Authority. Returns a mnemonic and a hex private key. The call fails if the signature is rejected or inputs are invalid.</p>
+            <p><code>deriveHDKeyFromEthereumSignature</code>, <code>entropyFromSignature</code>, <code>exportMnemonicAndPrivateKey</code> — Lower‑level building blocks. Derive straight from a 65‑byte signature, extract a 32‑byte entropy buffer from it, or derive from a raw 32‑byte entropy source using the standard path <code>m/44'/60'/0'/0/0</code>. Handy for custom UX and testing.</p>
+            <p class="text-gray-400"><code>ETH_DERIVATION_PATH</code>, <code>DEFAULT_PRIMARY_TYPE</code>, <code>DEFAULT_MESSAGE_TEMPLATE</code> — Constants for the default derivation path, EIP‑712 primary type, and default action/notice strings.</p>
+            <p class="text-gray-400 italic">Tip: for high-level implementations, always use the building blocks for full control; the one-call helper is available for convenience but is not the default approach.</p>
+          </div>
+        </section>
+
+        <section id="source" class="space-y-4">
+          <div class="flex items-center justify-between gap-4 flex-wrap">
+            <h2 class="text-3xl font-semibold">Source</h2>
+            <div class="flex items-center gap-2">
+              <button id="copyBtn" class="px-3 py-2 text-sm rounded-md bg-cyan-600 hover:bg-cyan-500 text-white">Copy</button>
+              <button id="downloadBtn" class="px-3 py-2 text-sm rounded-md bg-gray-700 hover:bg-gray-600 text-white">Download</button>
+            </div>
+          </div>
+          <div class="bg-gray-900/60 border border-gray-700 rounded-lg">
+            <pre id="sourceCode" class="code-scroll p-4 text-[11px] sm:text-xs text-gray-100"></pre>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      const SOURCE_PATH = './trading-authority.js';
+      const sourceEl = document.getElementById('sourceCode');
+      const copyBtn = document.getElementById('copyBtn');
+      const downloadBtn = document.getElementById('downloadBtn');
+
+      async function loadSource() {
+        try {
+          const res = await fetch(SOURCE_PATH, { cache: 'no-store' });
+          const text = await res.text();
+          // Stash text so the module highlighter can render when ready
+          window.__sourceText = text;
+          if (window.__highlightSource) {
+            window.__highlightSource(text);
+          } else {
+            sourceEl.textContent = text;
+          }
+          copyBtn.addEventListener('click', async () => {
+            try { await navigator.clipboard.writeText(text); copyBtn.textContent = 'Copied!'; setTimeout(()=>copyBtn.textContent='Copy', 1200); } catch {}
+          });
+          downloadBtn.addEventListener('click', () => {
+            const blob = new Blob([text], { type: 'text/javascript;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'trading-authority.js';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+          });
+        } catch (e) {
+          sourceEl.textContent = 'Failed to load source.';
+        }
+      }
+      loadSource();
+    </script>
+    <script type="module">
+      import { codeToHtml } from 'https://esm.sh/shikiji@0.10.2';
+
+      async function highlightPre(pre) {
+        try {
+          const lang = pre.dataset.lang || 'txt';
+          const codeText = pre.innerText;
+          const html = await codeToHtml(codeText, { lang, theme: 'rose-pine' });
+          pre.outerHTML = html;
+        } catch {}
+      }
+
+      // Highlight static examples marked with data-lang
+      document.querySelectorAll('pre[data-lang]').forEach((pre) => highlightPre(pre));
+
+      // Expose a helper for the dynamic source viewer
+      window.__highlightSource = async (text) => {
+        try {
+          const html = await codeToHtml(text, { lang: 'js', theme: 'rose-pine' });
+          const target = document.getElementById('sourceCode');
+          if (target) target.outerHTML = html;
+        } catch {
+          const target = document.getElementById('sourceCode');
+          if (target) target.textContent = text;
+        }
+      };
+      // If the source text was fetched before this module loaded, render now
+      if (window.__sourceText) {
+        window.__highlightSource(window.__sourceText);
+      }
+    </script>
+  </body>
+  </html>
+
+

@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#111827">
+    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <link rel="dns-prefetch" href="https://esm.sh">
+    <link rel="preconnect" href="https://esm.sh" crossorigin>
+    <link rel="dns-prefetch" href="https://unpkg.com">
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
+    <title>Trading Authority — Web3 session key demo</title>
+    <meta name="description" content="A Web2-like experience for one-click transactions. Create and use a Trading Authority (session key) derived from an EIP‑712 signature.">
+    <meta name="keywords" content="Trading Authority, session key, EIP-712, Web3, Ethereum, viem">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { cyan: { 400: '#22d3ee', 500: '#06b6d4', 600: '#0891b2' } } } } }
+    </script>
+</head>
+
+<body class="bg-gray-900 text-gray-200 font-sans antialiased">
+
+    <div class="container max-w-3xl mx-auto p-4 md:p-8">
+
+        <header class="mb-10 md:mb-12">
+            <div class="rounded-2xl bg-gradient-to-br from-gray-800/70 to-gray-800/30 border border-gray-700/60 p-6 md:p-8 shadow-xl">
+                <div class="flex items-start justify-between gap-4 flex-wrap">
+                    <div>
+                        <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-cyan-400">Trading Authority</h1>
+                        <p class="text-gray-400 mt-2">A Web2-like experience for one-click transactions with strong safety rails.</p>
+                    </div>
+                </div>
+                <nav class="mt-6 text-sm text-gray-400 overflow-x-auto">
+                    <ul class="flex items-center gap-4 md:gap-6 whitespace-nowrap">
+                        <li><a href="./documentation.html" class="hover:text-cyan-300">Documentation</a></li>
+                        <li><a href="./trading-authority.html" class="hover:text-cyan-300">trading-authority.js</a></li>
+                        <li><a href="./documentation.html#concept" class="hover:text-cyan-300">Concept</a></li>
+                        <li><a href="./documentation.html#guide" class="hover:text-cyan-300">Dashboard Guide</a></li>
+                        <li><a href="./documentation.html#faq" class="hover:text-cyan-300">FAQ</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <div id="connectedWalletInfo" style="display: none;"
+            class="mb-8 bg-gray-700/50 p-4 rounded-lg flex items-center justify-between gap-4 flex-wrap">
+            <div class="flex items-center gap-3">
+                <span class="flex-shrink-0 w-3 h-3 bg-green-400 rounded-full"></span>
+                <div>
+                    <p class="text-sm font-mono text-gray-300">Connected: <span id="connectedWalletAddress"
+                            class="font-bold text-white"></span></p>
+                    <p class="text-sm font-mono text-gray-300">Balance: <span id="mainWalletBalance"
+                            class="font-bold text-white">0.00000</span> ETH</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <select id="networkSelector"
+                    class="bg-gray-800 border border-gray-600 text-white text-base md:text-xs rounded-md p-1.5 focus:ring-cyan-500 focus:border-cyan-500"></select>
+                <button id="refreshButton" title="Refresh Balances"
+                    class="p-1.5 rounded-full hover:bg-gray-600 transition-colors disabled:cursor-not-allowed text-xl disabled:opacity-50">↻</button>
+            </div>
+        </div>
+        <main class="bg-gray-800/50 rounded-xl shadow-2xl p-4 sm:p-6 md:p-8 space-y-8">
+            <section id="step1-connect">
+                <div class="flex items-center gap-4">
+                    <div
+                        class="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-cyan-500/10 text-cyan-400 rounded-full flex items-center justify-center text-xl font-bold">
+                        1
+                    </div>
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-semibold">Connect Your Wallet</h2>
+                        <p class="text-gray-400">Start by connecting your primary wallet.</p>
+                    </div>
+                </div>
+                <div class="mt-4 sm:mt-6 pl-0 sm:pl-16">
+                    <button id="connectButton"
+                        class="w-full md:w-auto flex items-center justify-center gap-2 bg-cyan-700 hover:bg-cyan-800 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed">
+                        <svg class="w-5 h-5 spinner" style="display: none;" viewBox="0 0 50 50">
+                            <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+                        </svg>
+                        <svg class="button-icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25-2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m12 3a3 3 0 11-6 0m6 0a3 3 0 00-6 0z" />
+                        </svg>
+                        <span class="button-text">Connect Wallet</span>
+                    </button>
+                </div>
+            </section>
+            <section id="step2-create-load" style="display: none;">
+                <div class="flex items-center gap-4">
+                    <div
+                        class="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-cyan-500/10 text-cyan-400 rounded-full flex items-center justify-center text-xl font-bold">
+                        2
+                    </div>
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-semibold">Setup Trading Authority</h2>
+                        <p class="text-gray-400">Create a new, password-protected Trading Authority or load an existing
+                            one for this network.
+                        </p>
+                    </div>
+                </div>
+                <div class="mt-4 sm:mt-6 pl-0 sm:pl-16">
+                    <button id="createTAButton"
+                        class="w-full md:w-auto flex items-center justify-center gap-2 bg-cyan-700 hover:bg-cyan-800 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed">
+                        <svg class="w-5 h-5 spinner" style="display: none;" viewBox="0 0 50 50">
+                            <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+                        </svg>
+                        <span class="button-text">Create / Load Trading Authority</span>
+                    </button>
+                </div>
+            </section>
+            <section id="step2a-whitelist" style="display: none;">
+                <div class="flex items-center gap-4">
+                    <div
+                        class="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-cyan-500/10 text-cyan-400 rounded-full flex items-center justify-center text-xl font-bold">
+                        3
+                    </div>
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-semibold">Whitelist New Authority</h2>
+                        <p class="text-gray-400">Your new Trading Authority needs to be whitelisted by your main account
+                            via a one-time transaction.
+                        </p>
+                    </div>
+                </div>
+                <div class="mt-4 sm:mt-6 pl-0 sm:pl-16">
+                    <button id="whitelistButton"
+                        class="w-full md:w-auto flex items-center justify-center gap-2 bg-cyan-700 hover:bg-cyan-800 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed">
+                        <svg class="w-5 h-5 spinner" style="display: none;" viewBox="0 0 50 50">
+                            <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+                        </svg>
+                        <span class="button-text">Whitelist Trading Authority (Simulated Tx)</span>
+                    </button>
+                </div>
+            </section>
+            <section id="step3-main-view" style="display: none;" class="space-y-8">
+                <div>
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-green-500/10 text-green-400 rounded-full flex items-center justify-center text-xl font-bold">
+                            <svg class="w-6 h-6 sm:w-7 sm:h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="text-xl sm:text-2xl font-semibold">Trading Authority Ready</h2>
+                            <p class="text-gray-400">Your Trading Authority is active. You can now perform one-click
+                                actions.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mt-4 sm:mt-6 pl-0 sm:pl-16 space-y-6">
+                        <div class="bg-gray-900/50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-gray-300 mb-2">Trading Authority Details</h3>
+                            <p class="text-sm font-mono break-all"><span class="text-gray-400">Address: </span><span
+                                    id="taAddress" class="text-cyan-400"></span></p>
+                            <p class="text-sm font-mono"><span class="text-gray-400">Balance: </span><span
+                                    id="taBalance"></span> ETH</p>
+                            <p class="text-sm font-mono"><span class="text-gray-400">Whitelisted: </span><span
+                                    class="font-bold text-green-400">true (simulated)</span><span
+                                    class="ml-1 text-gray-400 cursor-help"
+                                    title="In a real app, this requires a smart contract where your main wallet grants specific permissions (e.g., trading, spending limits) to this Trading Authority address.">ⓘ</span>
+                            </p>
+                        </div>
+                        <div class="bg-gray-900/50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-gray-300 mb-2">Fund Trading Authority from Main Wallet</h3>
+                            <p class="text-sm text-gray-400 mb-3">Your Trading Authority needs gas. Send it funds from
+                                your connected wallet.
+                            </p>
+                            <button id="fundButton"
+                                class="w-full md:w-auto flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg text-base md:text-sm transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed">
+                                <svg class="w-5 h-5 spinner" style="display: none;" viewBox="0 0 50 50">
+                                    <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+                                </svg>
+                                <span class="button-text"></span>
+                            </button>
+                        </div>
+                        <div class="bg-gray-900/50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-gray-300 mb-3">One-Click Actions</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-gray-800/50 p-3 rounded-lg">
+                                    <label for="sendBackAmountInput" class="text-sm font-medium text-gray-300">Send back
+                                        to main wallet</label>
+                                    <div class="flex items-center gap-2 mt-2">
+                                        <input type="number" id="sendBackAmountInput" inputmode="decimal" enterkeyhint="send"
+                                            class="bg-gray-900 border border-gray-600 text-white text-base md:text-sm rounded-lg block w-full p-2 focus:ring-cyan-500 focus:border-cyan-500"
+                                            step="any">
+                                        <button id="sendBackButton"
+                                            class="flex items-center justify-center gap-2 bg-cyan-700 hover:bg-cyan-800 text-white font-bold py-2 px-4 rounded-lg text-base md:text-sm transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed">
+                                            <svg class="w-5 h-5 spinner" style="display: none;" viewBox="0 0 50 50">
+                                                <circle class="path" cx="25" cy="25" r="20" fill="none"
+                                                    stroke-width="5"></circle>
+                                            </svg>
+                                            <span class="button-text">Send</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-800/50 p-3 rounded-lg flex flex-col justify-end">
+                                    <button id="signButton"
+                                        class="w-full flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg text-base md:text-sm transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed">
+                                        <svg class="w-5 h-5 spinner" style="display: none;" viewBox="0 0 50 50">
+                                            <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5">
+                                            </circle>
+                                        </svg>
+                                        <span class="button-text"></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="signatureBox" style="display: none;" class="mt-4">
+                                <h4 class="text-sm font-semibold text-gray-400">Signature:</h4>
+                                <pre class="bg-black/50 p-2 rounded-md text-xs text-yellow-300 break-all whitespace-pre-wrap"
+                                    id="signatureOutput"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="pt-6 border-t border-gray-700">
+                <h3 class="text-lg font-semibold text-gray-400 mb-2">Logs</h3>
+                <div class="bg-black/50 rounded-md p-4 h-40 sm:h-48 overflow-y-auto">
+                    <pre id="logOutput" class="text-[11px] sm:text-xs text-gray-300 whitespace-pre-wrap"></pre>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <style>
+        * { -webkit-tap-highlight-color: transparent; }
+        .spinner {
+            animation: rotate 2s linear infinite;
+        }
+
+        .spinner .path {
+            stroke: #06b6d4;
+            stroke-linecap: round;
+            animation: dash 1.5s ease-in-out infinite;
+        }
+
+        @keyframes rotate {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes dash {
+            0% {
+                stroke-dasharray: 1, 150;
+                stroke-dashoffset: 0;
+            }
+
+            50% {
+                stroke-dasharray: 90, 150;
+                stroke-dashoffset: -35;
+            }
+
+            100% {
+                stroke-dasharray: 90, 150;
+                stroke-dashoffset: -124;
+            }
+        }
+
+        #refreshButton.loading-refresh {
+            animation: rotate 1s linear infinite;
+        }
+    </style>
+
+    <script async src="https://unpkg.com/es-module-shims@1.10.0/dist/es-module-shims.js"></script>
+    <script
+        type="importmap">{ "imports": { "viem": "https://esm.sh/viem@2.13.1", "viem/chains": "https://esm.sh/viem@2.13.1/chains", "viem/accounts": "https://esm.sh/viem@2.13.1/accounts", "@scure/bip32": "https://esm.sh/@scure/bip32@1.3.2", "@scure/bip39": "https://esm.sh/@scure/bip39@1.2.1", "@scure/bip39/wordlists/english": "https://esm.sh/@scure/bip39@1.2.1/wordlists/english", "crypto-js": "https://esm.sh/crypto-js@4.2.0" } }</script>
+
+    <script type="module">
+        import { createWalletClient, custom, keccak256, toBytes, toHex, http, createPublicClient, formatEther, parseEther } from 'viem';
+        import { mainnet, sepolia, polygon, arbitrum } from 'viem/chains';
+        import { privateKeyToAccount } from 'viem/accounts';
+        import { HDKey } from '@scure/bip32';
+        import { entropyToMnemonic, mnemonicToSeedSync } from '@scure/bip39';
+        import { wordlist } from '@scure/bip39/wordlists/english';
+        import CryptoJS from 'crypto-js';
+
+        const SUPPORTED_CHAINS = [sepolia, polygon, arbitrum, mainnet];
+        const CUSTOM_RPCS = { [sepolia.id]: 'https://eth-sepolia.public.blastapi.io' };
+        const FUND_TA_AMOUNT_ETH = '0.001';
+        const SEND_BACK_AMOUNT_ETH = '0.0001';
+
+        const CONFIG = {
+            FUND_TA_AMOUNT_WEI: parseEther(FUND_TA_AMOUNT_ETH),
+            SEND_BACK_AMOUNT_WEI: parseEther(SEND_BACK_AMOUNT_ETH),
+            FUND_TA_AMOUNT_ETH, 
+            SEND_BACK_AMOUNT_ETH,
+            TA_SIGN_MESSAGE: 'By trading authority',
+            EIP712_DOMAIN: { name: 'authority', version: 'v1' }, 
+            GAS_LIMIT_ETH_TRANSFER: 21000n, 
+            SIMULATED_TX_DELAY_MS: 2000,
+            EIP712_TA_CREATION_DETAILS: {
+                primaryType: 'authority',
+                types: {
+                    'authority': [
+                        { name: 'action', type: 'string' },
+                        { name: 'notice', type: 'string' },
+                        { name: 'chainId', type: 'string' },
+                        { name: 'nonce', type: 'uint256' },
+                    ],
+                    EIP712Domain: [
+                        { name: 'name', type: 'string' },
+                        { name: 'version', type: 'string' },
+                        { name: 'chainId', type: 'uint256' }
+                    ]
+                },
+                message: { action: 'Authority creation/recreation', notice: 'Only sign this on ta.itsmnthn.dev to generate a authority key.' },
+            },
+            UI_PROMPTS: { UNLOCK_PASSWORD: "Enter password to unlock your Trading Authority:", CREATE_PASSWORD: "Create a password to encrypt your new Trading Authority:", },
+        };
+
+        const shortenAddress = (address) => `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+        const state = { isLoading: false, currentStep: 'connect', selectedChain: sepolia, connectedAddress: null, mainWalletBalance: null, userWalletClient: null, publicClient: null, tradingAuthority: null, taWalletClient: null, signature: null, logs: [], };
+        function setState(newState) {
+            Object.assign(state, newState);
+            UIService.render(state);
+        }
+
+        const CryptoService = {
+            exportMnemonicAndPrivateKey: (entropy) => {
+                const mnemonic = entropyToMnemonic(entropy, wordlist);
+                const seed = mnemonicToSeedSync(mnemonic);
+                const hdKey = HDKey.fromMasterSeed(seed);
+                const derivedKey = hdKey.derive("m/44'/60'/0'/0/0");
+                if (!derivedKey.privateKey) throw new Error('Could not derive private key.');
+                return { mnemonic, privateKey: toHex(derivedKey.privateKey) };
+            },
+            deriveHDKeyFromSignature: (signature) => {
+                const signatureBytes = toBytes(signature);
+                if (signatureBytes.length !== 65) throw new Error('Signature must be 65 bytes long');
+                const rAndS = signatureBytes.subarray(0, 64);
+                const messageHash = toBytes(keccak256(rAndS));
+                return CryptoService.exportMnemonicAndPrivateKey(messageHash);
+
+            },
+            encrypt: (text, password) => CryptoJS.AES.encrypt(text, password).toString(),
+            decrypt: (encryptedText, password) => {
+                try {
+                    const bytes = CryptoJS.AES.decrypt(encryptedText, password);
+                    const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+                    return decrypted || null;
+
+                } catch (e) {
+                    return null;
+
+                }
+            },
+        };
+        const StorageService = {
+            saveTA: (address, chainId, data) => localStorage.setItem(`tradingAuthority_${chainId}_${address}`, JSON.stringify(data)),
+            loadTA: (address, chainId) => {
+                const data = localStorage.getItem(`tradingAuthority_${chainId}_${address}`);
+                return data ? JSON.parse(data) : null;
+
+            },
+            getNonce: (address, chainId) => {
+                const nonces = JSON.parse(localStorage.getItem('tradingAuthorityNonces')) || {};
+                const key = `${address}_${chainId}`;
+                return nonces[key] || 0;
+            },
+            incrementNonce: (address, chainId) => {
+                const nonces = JSON.parse(localStorage.getItem('tradingAuthorityNonces')) || {};
+                const key = `${address}_${chainId}`;
+                const currentNonce = nonces[key] || 0;
+                nonces[key] = currentNonce + 1;
+                localStorage.setItem('tradingAuthorityNonces', JSON.stringify(nonces));
+            },
+        };
+        const WalletService = {
+            connect: async (chain) => {
+                if (!window.ethereum) throw new Error('MetaMask is not installed.');
+                const rpcUrl = CUSTOM_RPCS[chain.id];
+                const transport = rpcUrl ? http(rpcUrl) : http();
+                const publicClient = createPublicClient({ chain, transport });
+                const userWalletClient = createWalletClient({ chain, transport: custom(window.ethereum) });
+                const [connectedAddress] = await userWalletClient.requestAddresses();
+                return { publicClient, userWalletClient, connectedAddress };
+            },
+            getOnboardingSignature: (client, address, chain, nonce) => {
+                const { types, primaryType, message: messageTemplate } = CONFIG.EIP712_TA_CREATION_DETAILS;
+                const typedData = {
+                    types,
+                    domain: { ...CONFIG.EIP712_DOMAIN, chainId: chain.id },
+                    primaryType,
+                    message: { ...messageTemplate, chainId: String(chain.id), nonce, },
+                };
+                return client.signTypedData({ account: address, ...typedData });
+            },
+            createTAClient: (privateKey, chain) => {
+                const rpcUrl = CUSTOM_RPCS[chain.id];
+                const transport = rpcUrl ? http(rpcUrl) : http();
+                return createWalletClient({ account: privateKeyToAccount(privateKey), chain, transport });
+            },
+            getBalance: async (publicClient, address) => {
+                if (!publicClient || !address) return '0.0';
+                const balanceWei = await publicClient.getBalance({ address });
+                return formatEther(balanceWei);
+            },
+        };
+        const UIService = {
+            elements: { step1: document.getElementById('step1-connect'), step2: document.getElementById('step2-create-load'), step2a: document.getElementById('step2a-whitelist'), step3: document.getElementById('step3-main-view'), connectButton: document.getElementById('connectButton'), createTAButton: document.getElementById('createTAButton'), whitelistButton: document.getElementById('whitelistButton'), fundButton: document.getElementById('fundButton'), sendBackButton: document.getElementById('sendBackButton'), sendBackAmountInput: document.getElementById('sendBackAmountInput'), signButton: document.getElementById('signButton'), logOutput: document.getElementById('logOutput'), taAddress: document.getElementById('taAddress'), taBalance: document.getElementById('taBalance'), signatureBox: document.getElementById('signatureBox'), signatureOutput: document.getElementById('signatureOutput'), connectedWalletInfo: document.getElementById('connectedWalletInfo'), connectedWalletAddress: document.getElementById('connectedWalletAddress'), mainWalletBalance: document.getElementById('mainWalletBalance'), refreshButton: document.getElementById('refreshButton'), networkSelector: document.getElementById('networkSelector'), },
+            log: (message) => {
+                const newLogs = [`${new Date().toLocaleTimeString()}: ${message}`, ...state.logs];
+                setState({ logs: newLogs.slice(0, 100) });
+            },
+            toggleSpinner: (button, show) => {
+                const spinner = button.querySelector('.spinner');
+                const icon = button.querySelector('.button-icon');
+                const text = button.querySelector('.button-text');
+                button.disabled = show;
+                if (show) {
+                    if (spinner) spinner.style.display = 'inline-block';
+                    if (icon) icon.style.display = 'none';
+                    if (text) text.classList.add('opacity-70');
+
+                } else {
+                    if (spinner) spinner.style.display = 'none';
+                    if (icon) icon.style.display = 'inline-block';
+                    if (text) text.classList.remove('opacity-70');
+
+                }
+            },
+            toggleRefreshIcon: (spinning) => {
+                const icon = UIService.elements.refreshButton;
+                icon.disabled = spinning;
+                if (spinning) icon.classList.add('loading-refresh');
+                else icon.classList.remove('loading-refresh');
+
+            },
+            initializeButtonLabels: () => {
+                const { fundButton, signButton, sendBackAmountInput } = UIService.elements;
+                fundButton.querySelector('.button-text').textContent = `Send ${CONFIG.FUND_TA_AMOUNT_ETH} ETH`;
+                signButton.querySelector('.button-text').textContent = `Sign "${CONFIG.TA_SIGN_MESSAGE}"`;
+                sendBackAmountInput.placeholder = CONFIG.SEND_BACK_AMOUNT_ETH;
+            },
+            initializeNetworkSelector: () => {
+                const selector = UIService.elements.networkSelector;
+                selector.innerHTML = '';
+                SUPPORTED_CHAINS.forEach(chain => {
+                    const option = document.createElement('option');
+                    option.value = chain.id;
+                    option.textContent = chain.name;
+                    if (chain.id === state.selectedChain.id) {
+                        option.selected = true;
+
+                    } selector.appendChild(option);
+                });
+            },
+            render: (state) => {
+                UIService.elements.logOutput.textContent = state.logs.join('\n');
+                if (state.connectedAddress) {
+                    UIService.elements.connectedWalletInfo.style.display = 'flex';
+                    UIService.elements.connectedWalletAddress.textContent = shortenAddress(state.connectedAddress);
+                    if (state.mainWalletBalance !== null) {
+                        UIService.elements.mainWalletBalance.textContent = parseFloat(state.mainWalletBalance);
+
+                    }
+                } else {
+                    UIService.elements.connectedWalletInfo.style.display = 'none';
+
+                } ['step1', 'step2', 'step2a', 'step3'].forEach(step => {
+                    UIService.elements[step].style.display = 'none';
+
+                });
+                const stepMap = { 'connect': 'step1', 'create-load': 'step2', 'whitelist': 'step2a', 'main-view': 'step3' };
+                UIService.elements[stepMap[state.currentStep]].style.display = 'block';
+                if (state.tradingAuthority) {
+                    UIService.elements.taAddress.textContent = state.tradingAuthority.address;
+                    UIService.elements.taBalance.textContent = parseFloat(state.tradingAuthority.balance);
+
+                } if (state.signature) {
+                    UIService.elements.signatureBox.style.display = 'block';
+                    UIService.elements.signatureOutput.textContent = state.signature;
+
+                } else {
+                    UIService.elements.signatureBox.style.display = 'none';
+
+                }
+            },
+        };
+        async function handleConnectClick(chainToConnect = state.selectedChain) {
+            const button = UIService.elements.connectButton;
+            UIService.toggleSpinner(button, true);
+            UIService.log('Connecting wallet...');
+            try {
+                const { publicClient, userWalletClient, connectedAddress } = await WalletService.connect(chainToConnect);
+                const mainBalance = await WalletService.getBalance(publicClient, connectedAddress);
+                setState({ publicClient, userWalletClient, connectedAddress, mainWalletBalance: mainBalance, currentStep: 'create-load', selectedChain: chainToConnect });
+                UIService.log(`Wallet connected: ${connectedAddress}`);
+            } catch (error) {
+                UIService.log(`Error: ${error.message}`);
+
+            } finally {
+                UIService.toggleSpinner(button, false);
+
+            }
+        }
+        async function setupTradingAuthority() {
+            const button = UIService.elements.createTAButton;
+            UIService.toggleSpinner(button, true);
+            UIService.log('Setting up Trading Authority...');
+            try {
+                const storedTA = StorageService.loadTA(state.connectedAddress, state.selectedChain.id);
+                let privateKey;
+                let isNew = false;
+                if (storedTA) {
+                    UIService.log('Found existing Trading Authority. Please enter password.');
+                    const password = prompt(CONFIG.UI_PROMPTS.UNLOCK_PASSWORD);
+                    if (!password) {
+                        UIService.log('Unlock cancelled.');
+                        return;
+
+                    } privateKey = CryptoService.decrypt(storedTA.encryptedPrivateKey, password);
+                    if (!privateKey) {
+                        alert('Incorrect password!');
+                        UIService.log('Decryption failed.');
+                        return;
+
+                    } UIService.log('Trading Authority unlocked.');
+                } else {
+                    isNew = true;
+                    UIService.log('No Trading Authority found. Requesting signature...');
+                    const nonce = StorageService.getNonce(state.connectedAddress, state.selectedChain.id);
+                    UIService.log(`Using nonce: ${nonce}`);
+                    const signature = await WalletService.getOnboardingSignature(state.userWalletClient, state.connectedAddress, state.selectedChain, nonce);
+                    UIService.log('Deriving key from signature...');
+                    const taKeyData = CryptoService.deriveHDKeyFromSignature(signature);
+                    const password = prompt(CONFIG.UI_PROMPTS.CREATE_PASSWORD);
+                    if (!password) {
+                        UIService.log('Creation cancelled.');
+                        return;
+
+                    }
+                    const encryptedKey = CryptoService.encrypt(taKeyData.privateKey, password);
+                    const dataToStore = { encryptedPrivateKey: encryptedKey, nonce: nonce, version: CONFIG.EIP712_DOMAIN.version };
+                    StorageService.saveTA(state.connectedAddress, state.selectedChain.id, dataToStore);
+                    StorageService.incrementNonce(state.connectedAddress, state.selectedChain.id);
+                    privateKey = taKeyData.privateKey;
+                    UIService.log('New Trading Authority created and encrypted.');
+                }
+                const taAccount = privateKeyToAccount(privateKey);
+                const balance = await WalletService.getBalance(state.publicClient, taAccount.address);
+                setState({ taWalletClient: WalletService.createTAClient(privateKey, state.selectedChain), tradingAuthority: { address: taAccount.address, balance: balance, privateKey: privateKey }, currentStep: isNew ? 'whitelist' : 'main-view' });
+            } catch (error) {
+                UIService.log(`Error setting up Trading Authority: ${error.message}`);
+
+            } finally {
+                UIService.toggleSpinner(button, false);
+
+            }
+        }
+        async function handleWhitelistClick() {
+            const button = UIService.elements.whitelistButton;
+            UIService.toggleSpinner(button, true);
+            UIService.log('Simulating whitelist transaction...');
+            await new Promise(resolve => setTimeout(resolve, CONFIG.SIMULATED_TX_DELAY_MS));
+            UIService.log('Whitelist successful (simulated). Trading Authority is now active.');
+            setState({ currentStep: 'main-view' });
+            UIService.toggleSpinner(button, false);
+        }
+        async function handleFundClick() {
+            const button = UIService.elements.fundButton;
+            UIService.toggleSpinner(button, true);
+            UIService.log(`Requesting ${CONFIG.FUND_TA_AMOUNT_ETH} ETH to fund Trading Authority...`);
+            try {
+                const hash = await state.userWalletClient.sendTransaction({ account: state.connectedAddress, to: state.tradingAuthority.address, value: CONFIG.FUND_TA_AMOUNT_WEI, });
+                UIService.log(`Funding transaction sent: ${hash}. Waiting for confirmation...`);
+                await state.publicClient.waitForTransactionReceipt({ hash });
+                UIService.log('Funding confirmed!');
+                await handleRefreshBalances(true);
+            } catch (error) {
+                UIService.log(`Funding failed: ${error.message}`);
+
+            } finally {
+                UIService.toggleSpinner(button, false);
+
+            }
+        }
+        async function handleSendBackClick() {
+            const button = UIService.elements.sendBackButton;
+            const input = UIService.elements.sendBackAmountInput;
+            const amountEth = input.value || input.placeholder;
+            UIService.toggleSpinner(button, true);
+            UIService.log(`Trading Authority sending ${amountEth} ETH back to main wallet...`);
+            try {
+                const amountWei = parseEther(amountEth);
+                if (parseEther(state.tradingAuthority.balance) < amountWei) {
+                    throw new Error("Insufficient balance in Trading Authority.");
+
+                } const hash = await state.taWalletClient.sendTransaction({ to: state.connectedAddress, value: amountWei, gas: CONFIG.GAS_LIMIT_ETH_TRANSFER });
+                UIService.log(`Send back tx sent: ${hash}. Waiting for confirmation...`);
+                await state.publicClient.waitForTransactionReceipt({ hash });
+                UIService.log('Send back confirmed!');
+                await handleRefreshBalances(true);
+            } catch (error) {
+                UIService.log(`Send back failed: ${error.message}`);
+
+            } finally {
+                UIService.toggleSpinner(button, false);
+
+            }
+        }
+        async function handleSignMessageClick() {
+            const button = UIService.elements.signButton;
+            UIService.toggleSpinner(button, true);
+            UIService.log(`Trading Authority signing message "${CONFIG.TA_SIGN_MESSAGE}"...`);
+            try {
+                const signature = await state.taWalletClient.signMessage({ message: CONFIG.TA_SIGN_MESSAGE });
+                setState({ signature: signature });
+                UIService.log('Message signed successfully.');
+            } catch (error) {
+                UIService.log(`Signing failed: ${error.message}`);
+
+            } finally {
+                UIService.toggleSpinner(button, false);
+
+            }
+        }
+        async function handleNetworkChange(event) {
+            const newChainId = parseInt(event.target.value, 10);
+            const newChain = SUPPORTED_CHAINS.find(c => c.id === newChainId);
+            if (!newChain || !state.userWalletClient) return;
+            UIService.log(`Requesting to switch network to ${newChain.name}...`);
+            try {
+                await state.userWalletClient.switchChain({ id: newChain.id });
+                UIService.log(`Switched to ${newChain.name}. Re-initializing...`);
+                setState({ selectedChain: newChain, tradingAuthority: null, taWalletClient: null, signature: null, mainWalletBalance: null, currentStep: 'create-load' });
+                await handleConnectClick(newChain);
+            } catch (error) {
+                UIService.log(`Failed to switch network: ${error.message}`);
+                event.target.value = state.selectedChain.id;
+
+            }
+        }
+        async function handleRefreshBalances(calledInternally = false) {
+            if (!state.connectedAddress) return;
+            if (!calledInternally) {
+                UIService.toggleRefreshIcon(true);
+
+            } UIService.log('Refreshing balances...');
+            try {
+                const mainBalancePromise = WalletService.getBalance(state.publicClient, state.connectedAddress);
+                const taBalancePromise = state.tradingAuthority ? WalletService.getBalance(state.publicClient, state.tradingAuthority.address) : Promise.resolve(null);
+                const [mainBalance, taBalance] = await Promise.all([mainBalancePromise, taBalancePromise]);
+                const newState = { mainWalletBalance: mainBalance };
+                if (state.tradingAuthority) {
+                    newState.tradingAuthority = { ...state.tradingAuthority, balance: taBalance };
+                } setState(newState);
+                UIService.log('Balances refreshed.');
+            } catch (error) {
+                UIService.log(`Failed to refresh balances: ${error.message}`);
+
+            } finally {
+                if (!calledInternally) {
+                    UIService.toggleRefreshIcon(false);
+
+                }
+            }
+        }
+
+        UIService.elements.connectButton.addEventListener('click', () => handleConnectClick());
+        UIService.elements.createTAButton.addEventListener('click', setupTradingAuthority);
+        UIService.elements.whitelistButton.addEventListener('click', handleWhitelistClick);
+        UIService.elements.fundButton.addEventListener('click', handleFundClick);
+        UIService.elements.sendBackButton.addEventListener('click', handleSendBackClick);
+        UIService.elements.signButton.addEventListener('click', handleSignMessageClick);
+        UIService.elements.networkSelector.addEventListener('change', handleNetworkChange);
+        UIService.elements.refreshButton.addEventListener('click', () => handleRefreshBalances(false));
+
+        UIService.initializeButtonLabels();
+        UIService.initializeNetworkSelector();
+        UIService.log("Application initialized. Please connect your wallet.");
+        setState({});
+    </script>
+</body>
+
+</html>
